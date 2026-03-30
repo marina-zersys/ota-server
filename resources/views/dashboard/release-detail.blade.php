@@ -117,7 +117,7 @@
         </dl>
 
         {{-- Action buttons --}}
-        <div class="px-6 py-4 border-t border-white/10 flex flex-wrap gap-3">
+        <div x-data class="px-6 py-4 border-t border-white/10 flex flex-wrap gap-3">
             @if(!$release->is_current)
             <form action="{{ route('dashboard.release-make-current', $release) }}" method="POST">
                 @csrf
