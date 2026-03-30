@@ -33,6 +33,21 @@
                     Apps
                 </a>
             </nav>
+
+            <div class="p-4 border-t border-white/10">
+                <div class="px-3 py-2">
+                    <p class="text-sm font-medium text-white truncate">{{ Auth::user()->name }}</p>
+                    <p class="text-xs text-gray-400 truncate">{{ Auth::user()->email }}</p>
+                </div>
+                <form method="POST" action="{{ route('logout') }}" class="mt-2">
+                    @csrf
+                    <button type="submit"
+                            class="flex items-center w-full px-3 py-2 rounded-lg text-sm font-medium text-gray-400 hover:bg-white/10 hover:text-white transition">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                        Logout
+                    </button>
+                </form>
+            </div>
         </aside>
 
         {{-- Main content --}}
