@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Release;
 use App\Models\ReleaseEvent;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
+
 
 class DashboardController extends Controller
 {
@@ -99,16 +99,6 @@ class DashboardController extends Controller
         }
 
         return view('dashboard.release-detail', compact('release', 'eventCounts', 'chartData'));
-    }
-
-    public function destroyRelease(Release $release)
-    {
-        $path = 'bundles/' . $release->platform . '/' . $release->app_version . '/' . $release->bundle_file_name;
-        Storage::disk('public')->delete($path);
-
-        $release->delete();
-
-        return redirect('/dashboard')->with('success', 'Release deleted successfully.');
     }
 
     public function toggleEnabled(Release $release)

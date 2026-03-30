@@ -142,16 +142,6 @@
             </form>
             @endif
 
-            <button type="button"
-                    @click="$dispatch('open-confirm', {
-                        title: 'Delete Release',
-                        message: 'Delete this release? This will also remove the bundle file. This cannot be undone.',
-                        actionUrl: '{{ route('dashboard.release-destroy', $release) }}',
-                        method: 'DELETE'
-                    })"
-                    class="px-4 py-2 bg-red-600/80 border border-red-500/30 text-white text-sm font-medium rounded-lg hover:bg-red-600 transition">
-                Delete Release
-            </button>
         </div>
     </div>
 

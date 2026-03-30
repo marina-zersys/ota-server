@@ -118,14 +118,6 @@
                             <button type="button"
                                     @click="$dispatch('open-promote', { releaseId: {{ $release->id }}, currentEnv: '{{ $release->environment }}' })"
                                     class="text-blue-300 hover:text-blue-200 text-xs font-medium transition">Promote</button>
-                            <button type="button"
-                                    @click="$dispatch('open-confirm', {
-                                        title: 'Delete Release',
-                                        message: 'Delete this release? This cannot be undone.',
-                                        actionUrl: '{{ route('dashboard.release-destroy', $release) }}',
-                                        method: 'DELETE'
-                                    })"
-                                    class="text-red-400 hover:text-red-300 text-xs font-medium transition">Delete</button>
                         </div>
                     </td>
                 </tr>

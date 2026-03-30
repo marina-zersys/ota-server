@@ -22,9 +22,9 @@
                     <div class="mb-4">
                         <label class="block text-xs font-medium text-gray-400 mb-1">Target Environment</label>
                         <select name="environment" class="w-full rounded-lg text-sm px-3 py-2 bg-white/10 border border-white/20 text-white focus:ring-lime-500 focus:border-lime-500 [&>option]:bg-slate-800 [&>option]:text-white">
-                            <template x-for="env in availableEnvs" :key="env">
-                                <option :value="env" x-text="env"></option>
-                            </template>
+                            <option value="dev" x-show="currentEnv !== 'dev'">dev</option>
+                            <option value="staging" x-show="currentEnv !== 'staging'">staging</option>
+                            <option value="prod" x-show="currentEnv !== 'prod'">prod</option>
                         </select>
                     </div>
                     <div class="flex justify-end gap-3">
@@ -49,10 +49,6 @@ function promoteModal() {
         show: false,
         releaseId: null,
         currentEnv: '',
-        allEnvs: ['dev', 'staging', 'prod'],
-        get availableEnvs() {
-            return this.allEnvs.filter(e => e !== this.currentEnv);
-        },
         open(detail) {
             this.releaseId = detail.releaseId;
             this.currentEnv = detail.currentEnv || '';
