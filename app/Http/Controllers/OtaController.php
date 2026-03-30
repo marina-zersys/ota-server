@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Release;
+use App\Models\ReleaseEvent;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\UniqueConstraintViolationException;
@@ -63,6 +64,16 @@ class OtaController extends Controller
             ], 400);
         }
 
+        $environment = $request->input('environment', 'prod');
+
+        // Unset is_current on existing releases for the same tuple
+        Release::where('app_name', $request->input('appName'))
+            ->where('platform', $request->input('platform'))
+            ->where('app_version', $request->input('appVersion'))
+            ->where('environment', $environment)
+            ->where('is_current', true)
+            ->update(['is_current' => false]);
+
         try {
             $release = Release::create([
                 'app_name' => $request->input('appName'),
@@ -72,7 +83,10 @@ class OtaController extends Controller
                 'bundle_url' => $request->input('bundleUrl'),
                 'bundle_hash' => $request->input('bundleHash'),
                 'bundle_file_name' => $request->input('bundleFileName'),
-                'environment' => $request->input('environment', 'prod'),
+                'environment' => $environment,
+                'is_enabled' => true,
+                'rollout_percentage' => 100,
+                'is_current' => true,
             ]);
         } catch (UniqueConstraintViolationException $e) {
             return response()->json([
@@ -90,7 +104,7 @@ class OtaController extends Controller
      * GET /api/check-update
      *
      * Checks if a newer OTA bundle is available.
-     * Query params: appName, platform, appVersion, env (optional)
+     * Query params: appName, platform, appVersion, env (optional), deviceId (optional)
      * Returns: { updateAvailable, ... }
      */
     public function checkUpdate(Request $request)
@@ -99,6 +113,7 @@ class OtaController extends Controller
         $platform = $request->query('platform');
         $appVersion = $request->query('appVersion');
         $env = $request->query('env', 'prod');
+        $deviceId = $request->query('deviceId');
 
         if (!$appName || !$platform || !$appVersion) {
             return response()->json([
@@ -110,11 +125,34 @@ class OtaController extends Controller
             ->where('platform', $platform)
             ->where('app_version', $appVersion)
             ->where('environment', $env)
-            ->orderByDesc('created_at')
+            ->where('is_enabled', true)
+            ->where('is_current', true)
             ->first();
 
         if (!$release) {
             return response()->json(['updateAvailable' => false]);
+        }
+
+        // Log check event
+        ReleaseEvent::create([
+            'release_id' => $release->id,
+            'event_type' => 'check',
+            'device_id' => $deviceId,
+            'ip_address' => $request->ip(),
+        ]);
+
+        // Apply rollout percentage
+        if ($release->rollout_percentage < 100) {
+            if ($deviceId) {
+                $hash = crc32($deviceId . $release->id);
+                $bucket = abs($hash) % 100;
+            } else {
+                $bucket = random_int(0, 99);
+            }
+
+            if ($bucket >= $release->rollout_percentage) {
+                return response()->json(['updateAvailable' => false]);
+            }
         }
 
         return response()->json([
@@ -127,5 +165,43 @@ class OtaController extends Controller
             'appVersion' => $release->app_version,
             'createdAt' => $release->created_at->toIso8601String(),
         ]);
+    }
+
+    /**
+     * POST /api/events
+     *
+     * Logs a client event (download, install).
+     * Body JSON: releaseId, eventType, deviceId (optional)
+     */
+    public function logEvent(Request $request)
+    {
+        $releaseId = $request->input('releaseId');
+        $eventType = $request->input('eventType');
+
+        if (!$releaseId || !$eventType) {
+            return response()->json([
+                'error' => 'Missing required fields: releaseId, eventType',
+            ], 400);
+        }
+
+        if (!in_array($eventType, ['download', 'install'])) {
+            return response()->json([
+                'error' => 'eventType must be one of: download, install',
+            ], 400);
+        }
+
+        $release = Release::find($releaseId);
+        if (!$release) {
+            return response()->json(['error' => 'Release not found.'], 404);
+        }
+
+        ReleaseEvent::create([
+            'release_id' => $releaseId,
+            'event_type' => $eventType,
+            'device_id' => $request->input('deviceId'),
+            'ip_address' => $request->ip(),
+        ]);
+
+        return response()->json(['success' => true], 201);
     }
 }

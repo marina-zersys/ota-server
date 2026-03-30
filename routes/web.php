@@ -10,3 +10,9 @@ Route::get('/dashboard/apps', [DashboardController::class, 'apps'])->name('dashb
 Route::get('/dashboard/apps/{appName}', [DashboardController::class, 'appDetail'])->name('dashboard.app-detail');
 Route::get('/dashboard/releases/{release}', [DashboardController::class, 'releaseDetail'])->name('dashboard.release-detail');
 Route::delete('/dashboard/releases/{release}', [DashboardController::class, 'destroyRelease'])->name('dashboard.release-destroy');
+
+Route::post('/dashboard/releases/{release}/toggle', [DashboardController::class, 'toggleEnabled'])->name('dashboard.release-toggle');
+Route::post('/dashboard/releases/{release}/rollout', [DashboardController::class, 'updateRollout'])->name('dashboard.release-rollout');
+Route::post('/dashboard/releases/{release}/promote', [DashboardController::class, 'promote'])->name('dashboard.release-promote');
+Route::post('/dashboard/releases/{release}/rollback', [DashboardController::class, 'rollback'])->name('dashboard.release-rollback');
+Route::post('/dashboard/releases/{release}/make-current', [DashboardController::class, 'makeCurrent'])->name('dashboard.release-make-current');

@@ -6,3 +6,4 @@ use Illuminate\Support\Facades\Route;
 Route::post('/upload', [OtaController::class, 'upload']);
 Route::post('/releases', [OtaController::class, 'createRelease']);
 Route::get('/check-update', [OtaController::class, 'checkUpdate']);
+Route::post('/events', [OtaController::class, 'logEvent']);

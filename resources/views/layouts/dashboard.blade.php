@@ -13,7 +13,7 @@
         [x-cloak] { display: none !important; }
     </style>
 </head>
-<body class="bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 min-h-screen">
+<body class="bg-gradient-to-br from-slate-900 via-emerald-950 to-slate-900 min-h-screen">
     <div class="flex min-h-screen">
         {{-- Sidebar --}}
         <aside class="w-64 backdrop-blur-xl bg-white/5 border-r border-white/10 flex flex-col">
