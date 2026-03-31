@@ -14,11 +14,13 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->redirectGuestsTo(function ($request) {
             if ($request->expectsJson() || $request->is('api/*')) {
-                abort(401, 'Unauthenticated.');
+                return null;
             }
             return '/login';
         });
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        $exceptions->shouldRenderJsonWhen(function ($request) {
+            return $request->is('api/*') || $request->expectsJson();
+        });
     })->create();
